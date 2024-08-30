@@ -1,0 +1,21 @@
+# Use an official Maven image from Docker Hub as a parent image
+FROM maven:3.8.5-openjdk-17-slim
+
+# Install Git
+RUN apt-get update && apt-get install -y git && apt-get clean
+
+# Set environment variables for the Jenkins agent
+ENV AGENT_WORKDIR=/home/jenkins
+ENV AGENT_NAME=docker-node
+
+# Create the work directory for Jenkins agent
+RUN mkdir -p ${AGENT_WORKDIR}
+
+# Set the working directory
+WORKDIR ${AGENT_WORKDIR}
+
+# Download the agent.jar from the Jenkins master
+RUN curl -sO http://178.16.137.170:8082/jnlpJars/agent.jar
+
+# Start the Jenkins agent
+CMD sh -c "java -jar agent.jar -url http://178.16.137.170:8082/ -secret ${AGENT_SECRET} -name ${AGENT_NAME} -workDir ${AGENT_WORKDIR}"
